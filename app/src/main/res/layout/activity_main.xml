@@ -7,26 +7,10 @@
     android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:listitem="@layout/item_game"
-        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-        app:spanCount="2"
-        />
 
-    <TextView
-        android:id="@+id/tvNoData"
+    <FrameLayout
+        android:id="@+id/nav_host"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Fallo en la recuperación de datos, intente más tarde"
-        android:textAppearance="?attr/textAppearanceHeadlineSmall"
-        android:visibility="gone"
-        app:drawableTopCompat="@drawable/keyboard_double_arrow_down"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:visibility="visible" />
+        android:layout_height="match_parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

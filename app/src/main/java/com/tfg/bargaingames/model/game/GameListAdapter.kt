@@ -1,4 +1,4 @@
-package com.tfg.bargaingames
+package com.tfg.bargaingames.model.game
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.tfg.bargaingames.R
 import com.tfg.bargaingames.databinding.ItemGameBinding
 
 class GameListAdapter : ListAdapter<Game, RecyclerView.ViewHolder>(GameDiff()) {
@@ -30,6 +32,7 @@ class GameListAdapter : ListAdapter<Game, RecyclerView.ViewHolder>(GameDiff()) {
 
                 Glide.with(context)
                     .load(game.smallImage)
+                    .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                     .into(imageGame)
             }
         }
