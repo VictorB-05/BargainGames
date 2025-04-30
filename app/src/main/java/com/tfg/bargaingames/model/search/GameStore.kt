@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class GameStore(
     val id: Int,
-    val type: String,
+    //val type: String,
     val name: String,
     val price: Price?,
     @SerializedName("tiny_image")

@@ -7,7 +7,7 @@ import java.time.ZoneId
 
 data class Game(
     val id: Int,
-    val type: String,
+//    val type: String,
     val name: String,
     val discounted: Boolean,
 
@@ -22,8 +22,8 @@ data class Game(
 
     val currency: String,
 
-    @SerializedName("large_capsule_image")
-    val largeImage: String,
+//    @SerializedName("large_capsule_image")
+//    val largeImage: String,
 
     @SerializedName("small_capsule_image")
     val smallImage: String,
@@ -31,6 +31,20 @@ data class Game(
     @SerializedName("discount_expiration")
     val discountExpirationNumber: Long?,
 
-    val discountExpiration: LocalDate? = discountExpirationNumber?.let { Instant.ofEpochSecond(it).atZone(ZoneId.systemDefault()).toLocalDate() }
-
-    )
+    val discountExpiration: LocalDate? = discountExpirationNumber?.let { Instant.ofEpochSecond(it).atZone(ZoneId.systemDefault()).toLocalDate() })
+{
+    override fun toString(): String {
+        return """
+        name: $name
+        id: $id
+        discounted: $discounted
+        discountPercent: $discountedPercent
+        originalPrice: $originalPrice
+        finalPrice: $finalPrice
+        currency: $currency
+        smallImage: $smallImage
+        discountExpirationNumber: $discountExpirationNumber
+        discountExpiration: $discountExpiration
+    """.trimIndent()
+    }
+}

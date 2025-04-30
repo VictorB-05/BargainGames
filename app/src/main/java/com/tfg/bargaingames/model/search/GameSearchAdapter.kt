@@ -24,7 +24,6 @@ class GameSearchAdapter: ListAdapter<GameStore, RecyclerView.ViewHolder>(GameSto
             with(binding){
                 Nombre.text = gameStore.name
 
-                // Precio, puede venir null si no hay price info
                 Precio.text = gameStore.price?.let {
                     (it.final.toFloat() / 100).toString() + " " + it.currency
                 } ?: "Sin precio"

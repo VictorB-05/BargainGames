@@ -2,6 +2,7 @@ package com.tfg.bargaingames.model.game
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,6 +26,7 @@ class GameListAdapter : ListAdapter<Game, RecyclerView.ViewHolder>(GameDiff()) {
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val game = getItem(position)
+        Log.i("game",game.toString())
         (holder as ViewHolder).run {
             with(binding){
                 Nombre.text = game.name
