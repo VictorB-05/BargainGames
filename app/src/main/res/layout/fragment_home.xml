@@ -7,13 +7,28 @@
     android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/searchView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:queryHint="Buscar juegos..."
+        app:layout_constraintTop_toTopOf="parent"
+        app:iconifiedByDefault="false" />
+
+    <!-- Resultados de búsqueda -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewBusqueda"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/searchView"/>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+        android:id="@+id/recyclerViewCategorias"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/searchView"
         app:spanCount="2"
         tools:listitem="@layout/item_game" />
 

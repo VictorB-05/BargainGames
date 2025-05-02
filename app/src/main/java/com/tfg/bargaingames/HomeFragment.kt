@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
@@ -24,8 +25,8 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
-    //private lateinit var adapter: GameListAdapter
-    private lateinit var adapter: GameSearchAdapter
+    private lateinit var listAdapter: GameListAdapter
+    private lateinit var searchAdapter: GameSearchAdapter
     private lateinit var service: GamesService
 
     override fun onCreateView(
@@ -40,19 +41,42 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                query?.let {
+                    if (it.isNotBlank()) {
+                        buscarJuego(it)
+                        mostrarResultados()
+                    }
+                }
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if (newText.isNullOrEmpty()) {
+                    mostrarCategorias()
+                }
+                return false
+            }
+        })
         setupAdapter()
         setupRecyclerView()
         setupRetrofit()
     }
 
     private fun setupAdapter() {
-        adapter = GameSearchAdapter()
+        listAdapter = GameListAdapter()
+        searchAdapter = GameSearchAdapter()
     }
 
     private  fun setupRecyclerView(){
-        binding.recyclerView.apply {
+        binding.recyclerViewCategorias.apply {
             layoutManager = StaggeredGridLayoutManager(2, RecyclerView.VERTICAL)
-            adapter = this@HomeFragment.adapter
+            adapter = this@HomeFragment.listAdapter
+        }
+        binding.recyclerViewBusqueda.apply {
+            layoutManager = StaggeredGridLayoutManager(2, RecyclerView.VERTICAL)
+            adapter = this@HomeFragment.searchAdapter
         }
     }
 
@@ -67,16 +91,59 @@ class HomeFragment : Fragment() {
     private fun getGames() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val response = service.getStoreSearch("repo")
-                //val games = response.specials?.items ?: emptyList() // Puedes elegir otra categoría aquí
-                val games = response.games ?: emptyList()
+                val response = service.getFeaturedCategories()
+                val games = response.specials?.items ?: emptyList()
                 withContext(Dispatchers.Main) {
-                    adapter.submitList(games)
+                    mostrarCategorias()
+                    listAdapter.submitList(games)
                 }
             } catch (e: Exception) {
                 Log.e("MainActivity", "Error al obtener juegos", e)
+                withContext(Dispatchers.Main) {
+                    mostrarNoResultados()
+                }
             }
         }
+    }
+
+    private fun buscarJuego(termino: String) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val response = service.getStoreSearch(termino, "spanish", "ES")
+                val games = response.games ?: emptyList()
+                withContext(Dispatchers.Main) {
+                    if (games.isNotEmpty()) {
+                        searchAdapter.submitList(games)
+                        mostrarResultados()
+                    } else {
+                        mostrarNoResultados()
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("HomeFragment", "Error buscando juego", e)
+                withContext(Dispatchers.Main) {
+                    mostrarNoResultados()
+                }
+            }
+        }
+    }
+
+    private fun mostrarNoResultados() {
+        binding.recyclerViewCategorias.visibility = View.GONE
+        binding.recyclerViewBusqueda.visibility = View.GONE
+        binding.tvNoData.visibility = View.VISIBLE
+    }
+
+    private fun mostrarResultados() {
+        binding.recyclerViewCategorias.visibility = View.GONE
+        binding.recyclerViewBusqueda.visibility = View.VISIBLE
+        binding.tvNoData.visibility = View.GONE
+    }
+
+    private fun mostrarCategorias() {
+        binding.recyclerViewCategorias.visibility = View.VISIBLE
+        binding.recyclerViewBusqueda.visibility = View.GONE
+        binding.tvNoData.visibility = View.GONE
     }
 
     override fun onResume() {

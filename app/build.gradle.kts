@@ -51,6 +51,7 @@ dependencies {
     implementation (libs.glide)
     implementation(libs.navigation.fragment.ktx)
     implementation(libs.navigation.ui.ktx)
+    testImplementation(libs.junit.jupiter)
     ksp (libs.ksp)
 
     testImplementation(libs.junit)
@@ -60,6 +61,7 @@ dependencies {
     // Retrofit
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+
 
 
 }

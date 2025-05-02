@@ -2,6 +2,7 @@ package com.tfg.bargaingames.model.game
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +14,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.tfg.bargaingames.R
 import com.tfg.bargaingames.databinding.ItemGameBinding
 
-class GameListAdapter : ListAdapter<Game, RecyclerView.ViewHolder>(GameDiff()) {
+class GameListAdapter : ListAdapter<GameCategorized, RecyclerView.ViewHolder>(GameDiff()) {
 
     private lateinit var context: Context
 
@@ -25,6 +26,7 @@ class GameListAdapter : ListAdapter<Game, RecyclerView.ViewHolder>(GameDiff()) {
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val game = getItem(position)
+        Log.i("game",game.toString())
         (holder as ViewHolder).run {
             with(binding){
                 Nombre.text = game.name
@@ -42,12 +44,12 @@ class GameListAdapter : ListAdapter<Game, RecyclerView.ViewHolder>(GameDiff()) {
         val binding = ItemGameBinding.bind(view)
     }
 
-    private class GameDiff : DiffUtil.ItemCallback<Game>() {
-        override fun areItemsTheSame(oldItem: Game, newItem: Game): Boolean {
+    private class GameDiff : DiffUtil.ItemCallback<GameCategorized>() {
+        override fun areItemsTheSame(oldItem: GameCategorized, newItem: GameCategorized): Boolean {
             return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: Game, newItem: Game): Boolean {
+        override fun areContentsTheSame(oldItem: GameCategorized, newItem: GameCategorized): Boolean {
             return oldItem == newItem
         }
     }
