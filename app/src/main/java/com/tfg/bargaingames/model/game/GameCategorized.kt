@@ -1,24 +1,25 @@
 package com.tfg.bargaingames.model.game
 
 import com.google.gson.annotations.SerializedName
+import com.tfg.bargaingames.model.GameItem
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
-data class Game(
-    val id: Int,
-//    val type: String,
-    val name: String,
-    val discounted: Boolean,
+data class GameCategorized(
+    override val id: Int,
+    override val name: String,
+    var discounted: Boolean,
 
+//    val type: String,
     @SerializedName("discount_percent")
-    val discountedPercent: Int,
+    var discountedPercent: Int,
 
     @SerializedName("original_price")
     val originalPrice: Int,
 
     @SerializedName("final_price")
-    val finalPrice: Int,
+    var finalPrice: Int,
 
     val currency: String,
 
@@ -31,8 +32,30 @@ data class Game(
     @SerializedName("discount_expiration")
     val discountExpirationNumber: Long?,
 
-    val discountExpiration: LocalDate? = discountExpirationNumber?.let { Instant.ofEpochSecond(it).atZone(ZoneId.systemDefault()).toLocalDate() })
+    val discountExpiration: LocalDate? = discountExpirationNumber?.let { Instant.ofEpochSecond(it).atZone(ZoneId.systemDefault()).toLocalDate() }
+
+) : GameItem
 {
+    init {
+        inRangeValues()
+    }
+
+    fun inRangeValues(){
+        if(!discounted){
+            discountedPercent = 0
+            finalPrice = originalPrice
+        }else{
+            if(discountedPercent>=100){
+                discountedPercent=100
+                finalPrice=0
+            }else if (discountedPercent<=0){
+                discountedPercent = 0
+                finalPrice = originalPrice
+                discounted = false
+            }
+        }
+    }
+
     override fun toString(): String {
         return """
         name: $name
