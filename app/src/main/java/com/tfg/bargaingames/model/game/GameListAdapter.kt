@@ -11,12 +11,15 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.tfg.bargaingames.OnClickListener
 import com.tfg.bargaingames.R
 import com.tfg.bargaingames.databinding.ItemGameBinding
+import com.tfg.bargaingames.model.GameItem
 
 class GameListAdapter : ListAdapter<GameCategorized, RecyclerView.ViewHolder>(GameDiff()) {
 
     private lateinit var context: Context
+    private lateinit var listener: OnClickListener
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         context = parent.context
@@ -26,8 +29,8 @@ class GameListAdapter : ListAdapter<GameCategorized, RecyclerView.ViewHolder>(Ga
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val game = getItem(position)
-        Log.i("game",game.toString())
         (holder as ViewHolder).run {
+            setListener(game)
             with(binding){
                 Nombre.text = game.name
                 Precio.text = ""+ (game.finalPrice.toFloat() / 100) + game.currency
@@ -40,8 +43,18 @@ class GameListAdapter : ListAdapter<GameCategorized, RecyclerView.ViewHolder>(Ga
         }
     }
 
+    fun setOnClickListener(listener: OnClickListener) {
+        this.listener = listener
+    }
+
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val binding = ItemGameBinding.bind(view)
+
+        fun setListener(gameItem: GameItem) {
+            binding.root.setOnClickListener {
+                listener.onClick(gameItem)
+            }
+        }
     }
 
     private class GameDiff : DiffUtil.ItemCallback<GameCategorized>() {

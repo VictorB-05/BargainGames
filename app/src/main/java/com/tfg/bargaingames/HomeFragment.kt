@@ -14,6 +14,7 @@ import com.tfg.bargaingames.api.Constantes
 import com.tfg.bargaingames.model.game.GameListAdapter
 import com.tfg.bargaingames.api.GamesService
 import com.tfg.bargaingames.databinding.FragmentHomeBinding
+import com.tfg.bargaingames.model.GameItem
 import com.tfg.bargaingames.model.search.GameSearchAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,7 +22,7 @@ import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(), OnClickListener {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
@@ -66,7 +67,10 @@ class HomeFragment : Fragment() {
 
     private fun setupAdapter() {
         listAdapter = GameListAdapter()
+        listAdapter.setOnClickListener(this)
+
         searchAdapter = GameSearchAdapter()
+        searchAdapter.setOnClickListener(this)
     }
 
     private  fun setupRecyclerView(){
@@ -155,4 +159,14 @@ class HomeFragment : Fragment() {
         _binding = null
         super.onDestroyView()
     }
+
+    override fun onClick(gameItem: GameItem) {
+        Log.i("game", gameItem.toString())
+        val fragment = GameDetailFragment.newInstance(gameItem.id)
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.nav_host, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
 }

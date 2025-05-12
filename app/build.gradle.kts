@@ -40,6 +40,8 @@ android {
     }
 }
 
+val room_version = "2.7.1"
+
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -62,6 +64,10 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
 
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
+    //Room
+    implementation("androidx.room:room-runtime:$room_version")
+    ksp("androidx.room:room-compiler:$room_version")
 
 }
