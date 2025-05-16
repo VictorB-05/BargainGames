@@ -15,6 +15,11 @@ import com.tfg.bargaingames.OnClickListener
 import com.tfg.bargaingames.R
 import com.tfg.bargaingames.databinding.ItemGameBinding
 import com.tfg.bargaingames.model.GameItem
+import com.tfg.bargaingames.model.database.GameApplication
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class GameListAdapter : ListAdapter<GameCategorized, RecyclerView.ViewHolder>(GameDiff()) {
 
@@ -39,6 +44,23 @@ class GameListAdapter : ListAdapter<GameCategorized, RecyclerView.ViewHolder>(Ga
                     .load(game.smallImage)
                     .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                     .into(imageGame)
+            }
+            CoroutineScope(Dispatchers.IO).launch {
+                val gameDb = GameApplication.database.gameDao().getGame(game.id)
+                withContext(Dispatchers.Main) {
+                    setListener(game)
+                    with(binding) {
+                        if (gameDb?.favorito == true) {
+                            Log.i("game", game.name)
+                            cbFavorite.setImageResource(R.drawable.favorite_24)
+                        } else {
+                            cbFavorite.setImageResource(R.drawable.favorite_no_24)
+                        }
+                        if (gameDb?.deseado == true) {
+                            cbDeseado.setImageResource(R.drawable.add_circle_24)
+                        }
+                    }
+                }
             }
         }
     }

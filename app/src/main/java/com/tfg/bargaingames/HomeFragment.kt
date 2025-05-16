@@ -29,6 +29,7 @@ class HomeFragment : Fragment(), OnClickListener {
     private lateinit var listAdapter: GameListAdapter
     private lateinit var searchAdapter: GameSearchAdapter
     private lateinit var service: GamesService
+    private var search: String = ""
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,6 +47,7 @@ class HomeFragment : Fragment(), OnClickListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 query?.let {
                     if (it.isNotBlank()) {
+                        search = it
                         buscarJuego(it)
                         mostrarResultados()
                     }
@@ -152,6 +154,10 @@ class HomeFragment : Fragment(), OnClickListener {
 
     override fun onResume() {
         super.onResume()
+        if(search.isNotEmpty()){
+            buscarJuego(search)
+            mostrarResultados()
+        }
         getGames()
     }
 

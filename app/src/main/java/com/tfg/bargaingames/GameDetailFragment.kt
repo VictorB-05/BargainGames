@@ -1,6 +1,7 @@
 package com.tfg.bargaingames
 
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -32,6 +33,7 @@ class GameDetailFragment : Fragment() {
     private lateinit var service: GamesService
     private var appId: Int = 0
     private lateinit var game: GameData
+    private var gameDB: GameData? = null
 
     companion object {
         private const val ARG_APP_ID = "app_id"
@@ -76,13 +78,23 @@ class GameDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        seeDatabase()
         setupRetrofit()
         obtenerDetallesJuego()
         binding.cbFavorite.setOnClickListener {
             addFavorite(view)
         }
+        binding.cbAdd.setOnClickListener{
+            addWish(view)
+        }
     }
 
+    override fun onDestroy() {
+        _binding = null
+        super.onDestroy()
+    }
+
+    @SuppressLint("SetTextI18n")
     private fun obtenerDetallesJuego() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
@@ -104,6 +116,22 @@ class GameDetailFragment : Fragment() {
                                     .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                                     .into(imageGame)
                             }
+
+                            if(game.price!=null){
+                                val precio = game.price!!.finalFormatted
+                                Log.i("game",precio)
+                                price.text = precio
+                            }else{
+                                price.text = "Gratis"
+                            }
+
+                            if(gameDB!=null && gameDB!!.favorito){
+                                cbFavorite.setImageResource(R.drawable.favorite_24)
+                            }
+
+                            if(gameDB!=null && gameDB!!.deseado){
+                                cbAdd.setImageResource(R.drawable.add_circle_24)
+                            }
                         }
                     }
                 }
@@ -113,29 +141,87 @@ class GameDetailFragment : Fragment() {
         }
     }
 
+    private fun seeDatabase(){
+        lifecycleScope.launch(Dispatchers.IO) {
+            gameDB = GameApplication.database.gameDao().getGame(appId)
+        }
+    }
+
     private fun addFavorite(view: View){
         lifecycleScope.launch(Dispatchers.IO) {
-            val gameDb = GameApplication.database.gameDao().getGame(game.id)
-            if(gameDb != null) {
-                if (gameDb.favorito){
-                    GameApplication.database.gameDao().updateFavorito(gameDb.id, false)
+            if(gameDB != null) {
+                if (gameDB!!.favorito){
+                    GameApplication.database.gameDao().updateFavorito(game.id, false)
+                    gameDB!!.favorito = false
                     withContext(Dispatchers.Main) {
                         Snackbar.make(view, "Juego quitado de favoritos", Snackbar.LENGTH_SHORT)
                             .show()
+                        binding.apply {
+                            cbFavorite.setImageResource(R.drawable.favorite_no_24)
+                        }
                     }
                 }else {
-                    val result = GameApplication.database.gameDao().updateFavorito(gameDb.id, true)
+                    GameApplication.database.gameDao().updateFavorito(game.id, true)
+                    gameDB!!.favorito = true
                     withContext(Dispatchers.Main) {
                         Snackbar.make(view, "Juego añadido a favoritos", Snackbar.LENGTH_SHORT)
                             .show()
+                        binding.apply {
+                            cbFavorite.setImageResource(R.drawable.favorite_24)
+                        }
                     }
                 }
             }else{
+                game.favorito = true
                 val result = GameApplication.database.gameDao().addGame(game)
                 if (result != -1L) {
                     withContext(Dispatchers.Main) {
                         Snackbar.make(view, "Juego añadido a favoritos", Snackbar.LENGTH_SHORT)
                             .show()
+                        binding.apply {
+                            cbFavorite.setImageResource(R.drawable.favorite_24)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun addWish(view: View){
+        lifecycleScope.launch(Dispatchers.IO) {
+            if(gameDB != null) {
+                if (gameDB!!.deseado){
+                    GameApplication.database.gameDao().updateDeseado(game.id, false)
+                    gameDB!!.deseado = false
+                    withContext(Dispatchers.Main) {
+                        Snackbar.make(view, "Juego quitado de deseados", Snackbar.LENGTH_SHORT)
+                            .show()
+                        binding.apply {
+                            cbAdd.setImageResource(R.drawable._add_circle_no_24)
+                        }
+                    }
+                }else {
+                    GameApplication.database.gameDao().updateDeseado(game.id, true)
+                    gameDB!!.deseado = true
+                    withContext(Dispatchers.Main) {
+                        Snackbar.make(view, "Juego añadido a deseados", Snackbar.LENGTH_SHORT)
+                            .show()
+                        binding.apply {
+                            cbAdd.setImageResource(R.drawable.add_circle_24)
+                        }
+                    }
+                }
+            }else{
+                game.deseado = true
+                val result = GameApplication.database.gameDao().addGame(game)
+                gameDB = game
+                if (result != -1L) {
+                    withContext(Dispatchers.Main) {
+                        Snackbar.make(view, "Juego añadido a deseados", Snackbar.LENGTH_SHORT)
+                            .show()
+                        binding.apply {
+                            cbAdd.setImageResource(R.drawable.add_circle_24)
+                        }
                     }
                 }
             }

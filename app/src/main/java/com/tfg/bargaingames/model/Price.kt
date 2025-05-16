@@ -7,5 +7,7 @@ data class Price(
     val initial: Int,
     val final: Int,
     @SerializedName("discount_percent")
-    val discountPercent: Int
+    val discountPercent: Int,
+    @SerializedName("final_formatted")
+    val finalFormatted : String
 )

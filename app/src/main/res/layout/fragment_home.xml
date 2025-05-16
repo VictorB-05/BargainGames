@@ -19,16 +19,21 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewBusqueda"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/searchView"/>
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        app:layout_constraintTop_toBottomOf="@+id/searchView"
+        app:layout_constraintBottom_toTopOf="@id/test"
+        app:spanCount="2"
+        tools:listitem="@layout/item_game"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewCategorias"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:layout_constraintTop_toBottomOf="@+id/searchView"
+        app:layout_constraintBottom_toTopOf="@id/test"
         app:spanCount="2"
         tools:listitem="@layout/item_game" />
 
@@ -43,6 +48,18 @@
         app:drawableTopCompat="@drawable/keyboard_double_arrow_down"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/test"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Fallo en la recuperación de datos, intente más tarde"
+        android:textAppearance="?attr/textAppearanceHeadlineSmall"
+        android:visibility="gone"
+        app:drawableTopCompat="@drawable/keyboard_double_arrow_down"
+        app:layout_constraintBottom_toBottomOf="parent"
         tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

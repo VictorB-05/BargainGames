@@ -17,6 +17,8 @@ import com.tfg.bargaingames.R
 import com.tfg.bargaingames.databinding.ItemGameBinding
 import com.tfg.bargaingames.model.GameItem
 import com.tfg.bargaingames.model.database.GameApplication
+import com.tfg.bargaingames.model.database.GameDatabase
+import com.tfg.bargaingames.model.detail.GameData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -36,25 +38,27 @@ class GameSearchAdapter: ListAdapter<GameStore, RecyclerView.ViewHolder>(GameSto
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val gameStore = getItem(position)
         (holder as ViewHolder).run {
+            setListener(gameStore)
+            with(binding) {
+                Nombre.text = gameStore.name
+                Precio.text = gameStore.price?.let {
+                    (it.final.toFloat() / 100).toString() + " " + it.currency
+                } ?: "Sin precio"
+
+                Glide.with(context)
+                    .load(gameStore.tinyImage)
+                    .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                    .into(imageGame)
+            }
             CoroutineScope(Dispatchers.IO).launch {
                 val gameDb = GameApplication.database.gameDao().getGame(gameStore.id)
                 withContext(Dispatchers.Main) {
                     setListener(gameStore)
                     with(binding) {
-                        Nombre.text = gameStore.name
-                        Precio.text = gameStore.price?.let {
-                            (it.final.toFloat() / 100).toString() + " " + it.currency
-                        } ?: "Sin precio"
-
-                        Glide.with(context)
-                            .load(gameStore.tinyImage)
-                            .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                            .into(imageGame)
-
                         if (gameDb?.favorito == true) {
-                            Log.i("game",gameStore.name)
+                            Log.i("game", gameStore.name)
                             cbFavorite.setImageResource(R.drawable.favorite_24)
-                        }else {
+                        } else {
                             cbFavorite.setImageResource(R.drawable.favorite_no_24)
                         }
                         if (gameDb?.deseado == true) {
@@ -68,6 +72,14 @@ class GameSearchAdapter: ListAdapter<GameStore, RecyclerView.ViewHolder>(GameSto
 
     fun setOnClickListener(listener: OnClickListener) {
         this.listener = listener
+    }
+
+    private fun seeDatabase (id : Int): GameData? {
+        var gameDb: GameData? = null
+        CoroutineScope(Dispatchers.IO).launch {
+            gameDb = GameApplication.database.gameDao().getGame(id)
+        }
+        return gameDb
     }
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -89,4 +101,5 @@ class GameSearchAdapter: ListAdapter<GameStore, RecyclerView.ViewHolder>(GameSto
             return oldItem == newItem
         }
     }
+
 }
