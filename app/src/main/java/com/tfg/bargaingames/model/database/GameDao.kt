@@ -10,6 +10,12 @@ interface GameDao {
     @Query("SELECT * FROM Game")
     fun getAllGame(): MutableList<GameData>
 
+    @Query("SELECT * FROM Game Where favorito = 1")
+    fun getFavoriteGame(): MutableList<GameData>
+
+    @Query("SELECT * FROM Game Where deseado = 1")
+    fun getWishGame(): MutableList<GameData>
+
     @Insert
     fun addGame(game: GameData): Long
 

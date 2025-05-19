@@ -22,13 +22,12 @@ import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class HomeFragment : Fragment(), OnClickListener {
+class HomeFragment : BaseFragment() {
     private var _binding: FragmentHomeBinding? = null
-    private val binding get() = _binding!!
+    protected val binding get() = _binding!!
 
     private lateinit var listAdapter: GameListAdapter
     private lateinit var searchAdapter: GameSearchAdapter
-    private lateinit var service: GamesService
     private var search: String = ""
 
     override fun onCreateView(
@@ -84,14 +83,6 @@ class HomeFragment : Fragment(), OnClickListener {
             layoutManager = StaggeredGridLayoutManager(2, RecyclerView.VERTICAL)
             adapter = this@HomeFragment.searchAdapter
         }
-    }
-
-    private fun setupRetrofit() {
-        val retrofit = Retrofit.Builder()
-            .baseUrl(Constantes.BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        service = retrofit.create(GamesService::class.java)
     }
 
     private fun getGames() {
@@ -157,22 +148,13 @@ class HomeFragment : Fragment(), OnClickListener {
         if(search.isNotEmpty()){
             buscarJuego(search)
             mostrarResultados()
+        }else{
+            getGames()
         }
-        getGames()
     }
 
     override fun onDestroyView() {
         _binding = null
         super.onDestroyView()
     }
-
-    override fun onClick(gameItem: GameItem) {
-        Log.i("game", gameItem.toString())
-        val fragment = GameDetailFragment.newInstance(gameItem.id)
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.nav_host, fragment)
-            .addToBackStack(null)
-            .commit()
-    }
-
 }
