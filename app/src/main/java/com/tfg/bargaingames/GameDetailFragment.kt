@@ -22,7 +22,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -59,12 +58,8 @@ class GameDetailFragment : Fragment() {
     }
 
     private fun setupRetrofit() {
-        val logging = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY // Puedes cambiar a BASIC o HEADERS
-        }
 
         val client = OkHttpClient.Builder()
-            .addInterceptor(logging)
             .build()
 
         val retrofit = Retrofit.Builder()
@@ -97,7 +92,7 @@ class GameDetailFragment : Fragment() {
     private fun obtenerDetallesJuego() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val response = service.getAppDetails(appId)
+                val response = service.getAppDetails(appId.toString())
                 val appDetails = response[appId.toString()]
                 if (appDetails?.success == true && appDetails.data != null) {
                     game = appDetails.data
@@ -105,9 +100,6 @@ class GameDetailFragment : Fragment() {
                         binding.apply {
                             name.text = game.name
                             description.text = HtmlCompat.fromHtml(game.description, HtmlCompat.FROM_HTML_MODE_LEGACY)
-
-
-                            Log.i("game",game.image)
 
                             context?.let {
                                 Glide.with(it)

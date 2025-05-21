@@ -22,7 +22,7 @@ interface GamesService {
 
     @GET("appdetails/")
     suspend fun getAppDetails(
-        @Query("appids") appId: Int,
+        @Query("appids") appId: String,
         @Query("filters") filters: String = "",
         @Query("cc") country: String = "ES",
         @Query("l") language: String = "spanish"

@@ -2,6 +2,10 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.BargainGames" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="colorPrimary">@color/Purple</item>
+        <item name="colorPrimaryVariant">@color/PurpleVariant</item>
+        <item name="colorOnPrimary">@color/white</item>
+
+        <item name="colorSecondary">@color/gray</item>
     </style>
 </resources>
