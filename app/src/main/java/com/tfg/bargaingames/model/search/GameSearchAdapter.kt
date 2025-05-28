@@ -1,7 +1,6 @@
 package com.tfg.bargaingames.model.search
 
 import android.content.Context
-import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -11,13 +10,11 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.google.android.material.snackbar.Snackbar
 import com.tfg.bargaingames.OnClickListener
 import com.tfg.bargaingames.R
 import com.tfg.bargaingames.databinding.ItemGameBinding
 import com.tfg.bargaingames.model.GameItem
 import com.tfg.bargaingames.model.database.GameApplication
-import com.tfg.bargaingames.model.database.GameDatabase
 import com.tfg.bargaingames.model.detail.GameData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +25,6 @@ class GameSearchAdapter: ListAdapter<GameStore, RecyclerView.ViewHolder>(GameSto
 
     private lateinit var context: Context
     private lateinit var listener: OnClickListener
-    val deseado: Boolean = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         context = parent.context
@@ -56,13 +52,14 @@ class GameSearchAdapter: ListAdapter<GameStore, RecyclerView.ViewHolder>(GameSto
                     setListener(gameStore)
                     with(binding) {
                         if (gameDb?.favorito == true) {
-                            Log.i("game", gameStore.name)
                             cbFavorite.setImageResource(R.drawable.favorite_24)
                         } else {
                             cbFavorite.setImageResource(R.drawable.favorite_no_24)
                         }
                         if (gameDb?.deseado == true) {
                             cbDeseado.setImageResource(R.drawable.add_circle_24)
+                        } else {
+                            cbDeseado.setImageResource(R.drawable._add_circle_no_24)
                         }
                     }
                 }
@@ -72,14 +69,6 @@ class GameSearchAdapter: ListAdapter<GameStore, RecyclerView.ViewHolder>(GameSto
 
     fun setOnClickListener(listener: OnClickListener) {
         this.listener = listener
-    }
-
-    private fun seeDatabase (id : Int): GameData? {
-        var gameDb: GameData? = null
-        CoroutineScope(Dispatchers.IO).launch {
-            gameDb = GameApplication.database.gameDao().getGame(id)
-        }
-        return gameDb
     }
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {

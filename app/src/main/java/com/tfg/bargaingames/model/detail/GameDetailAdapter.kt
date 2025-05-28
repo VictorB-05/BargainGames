@@ -39,6 +39,10 @@ class GameDetailAdapter: ListAdapter<GameData, RecyclerView.ViewHolder>(GameStor
                 Nombre.text = GameData.name
                 Precio.text = GameData.price?.finalFormatted ?: "Sin precio"
 
+                if(GameData.free){
+                    Precio.text = "Gratis"
+                }
+
                 Glide.with(context)
                     .load(GameData.capsuleImage)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -47,7 +51,6 @@ class GameDetailAdapter: ListAdapter<GameData, RecyclerView.ViewHolder>(GameStor
             CoroutineScope(Dispatchers.IO).launch {
                 val gameDb = GameApplication.database.gameDao().getGame(GameData.id)
                 withContext(Dispatchers.Main) {
-                    setListener(GameData)
                     with(binding) {
                         if (gameDb?.favorito == true) {
                             Log.i("game", GameData.name)

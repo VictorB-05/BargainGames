@@ -138,7 +138,13 @@ class FavouriteFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        getGames()
+        if(favorite){
+            getFavoritesGames()
+        }else if (wish){
+            getWishGames()
+        }else{
+            getGames()
+        }
     }
 
     override fun onDestroyView() {
