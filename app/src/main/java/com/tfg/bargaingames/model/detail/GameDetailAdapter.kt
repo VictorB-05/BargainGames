@@ -1,6 +1,5 @@
-package com.tfg.bargaingames.model.game
+package com.tfg.bargaingames.model.detail
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
@@ -21,37 +20,37 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class GameListAdapter : ListAdapter<GameCategorized, RecyclerView.ViewHolder>(GameDiff()) {
+class GameDetailAdapter: ListAdapter<GameData, RecyclerView.ViewHolder>(GameStoreDiff()) {
 
     private lateinit var context: Context
     private lateinit var listener: OnClickListener
+    val deseado: Boolean = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         context = parent.context
         return ViewHolder(LayoutInflater.from(context).inflate(R.layout.item_game, parent, false))
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val game = getItem(position)
+        val GameData = getItem(position)
         (holder as ViewHolder).run {
-            setListener(game)
-            with(binding){
-                Nombre.text = game.name
-                Precio.text = ""+ (game.finalPrice.toFloat() / 100) + game.currency
+            setListener(GameData)
+            with(binding) {
+                Nombre.text = GameData.name
+                Precio.text = GameData.price?.finalFormatted ?: "Sin precio"
 
                 Glide.with(context)
-                    .load(game.smallImage)
-                    .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                    .load(GameData.capsuleImage)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(imageGame)
             }
             CoroutineScope(Dispatchers.IO).launch {
-                val gameDb = GameApplication.database.gameDao().getGame(game.id)
+                val gameDb = GameApplication.database.gameDao().getGame(GameData.id)
                 withContext(Dispatchers.Main) {
-                    setListener(game)
+                    setListener(GameData)
                     with(binding) {
                         if (gameDb?.favorito == true) {
-                            Log.i("game", game.name)
+                            Log.i("game", GameData.name)
                             cbFavorite.setImageResource(R.drawable.favorite_24)
                         } else {
                             cbFavorite.setImageResource(R.drawable.favorite_no_24)
@@ -69,6 +68,14 @@ class GameListAdapter : ListAdapter<GameCategorized, RecyclerView.ViewHolder>(Ga
         this.listener = listener
     }
 
+    private fun seeDatabase (id : Int): GameData? {
+        var gameDb: GameData? = null
+        CoroutineScope(Dispatchers.IO).launch {
+            gameDb = GameApplication.database.gameDao().getGame(id)
+        }
+        return gameDb
+    }
+
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val binding = ItemGameBinding.bind(view)
 
@@ -79,13 +86,14 @@ class GameListAdapter : ListAdapter<GameCategorized, RecyclerView.ViewHolder>(Ga
         }
     }
 
-    private class GameDiff : DiffUtil.ItemCallback<GameCategorized>() {
-        override fun areItemsTheSame(oldItem: GameCategorized, newItem: GameCategorized): Boolean {
+    private class GameStoreDiff : DiffUtil.ItemCallback<GameData>() {
+        override fun areItemsTheSame(oldItem: GameData, newItem: GameData): Boolean {
             return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: GameCategorized, newItem: GameCategorized): Boolean {
+        override fun areContentsTheSame(oldItem: GameData, newItem: GameData): Boolean {
             return oldItem == newItem
         }
     }
+
 }

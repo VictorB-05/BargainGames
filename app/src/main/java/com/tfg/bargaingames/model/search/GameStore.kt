@@ -2,6 +2,7 @@ package com.tfg.bargaingames.model.search
 
 import com.google.gson.annotations.SerializedName
 import com.tfg.bargaingames.model.GameItem
+import com.tfg.bargaingames.model.Price
 
 /**
  * 

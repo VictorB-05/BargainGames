@@ -14,6 +14,7 @@ import com.tfg.bargaingames.api.Constantes
 import com.tfg.bargaingames.model.game.GameListAdapter
 import com.tfg.bargaingames.api.GamesService
 import com.tfg.bargaingames.databinding.FragmentHomeBinding
+import com.tfg.bargaingames.model.GameItem
 import com.tfg.bargaingames.model.search.GameSearchAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,13 +22,13 @@ import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class HomeFragment : Fragment() {
+class HomeFragment : BaseFragment() {
     private var _binding: FragmentHomeBinding? = null
-    private val binding get() = _binding!!
+    protected val binding get() = _binding!!
 
     private lateinit var listAdapter: GameListAdapter
     private lateinit var searchAdapter: GameSearchAdapter
-    private lateinit var service: GamesService
+    private var search: String = ""
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,6 +46,7 @@ class HomeFragment : Fragment() {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 query?.let {
                     if (it.isNotBlank()) {
+                        search = it
                         buscarJuego(it)
                         mostrarResultados()
                     }
@@ -66,7 +68,10 @@ class HomeFragment : Fragment() {
 
     private fun setupAdapter() {
         listAdapter = GameListAdapter()
+        listAdapter.setOnClickListener(this)
+
         searchAdapter = GameSearchAdapter()
+        searchAdapter.setOnClickListener(this)
     }
 
     private  fun setupRecyclerView(){
@@ -78,14 +83,6 @@ class HomeFragment : Fragment() {
             layoutManager = StaggeredGridLayoutManager(2, RecyclerView.VERTICAL)
             adapter = this@HomeFragment.searchAdapter
         }
-    }
-
-    private fun setupRetrofit() {
-        val retrofit = Retrofit.Builder()
-            .baseUrl(Constantes.BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        service = retrofit.create(GamesService::class.java)
     }
 
     private fun getGames() {
@@ -148,7 +145,12 @@ class HomeFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        getGames()
+        if(search.isNotEmpty()){
+            buscarJuego(search)
+            mostrarResultados()
+        }else{
+            getGames()
+        }
     }
 
     override fun onDestroyView() {
