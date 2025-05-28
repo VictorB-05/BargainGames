@@ -20,10 +20,17 @@ class GameApplication : Application() {
             }
         }
 
+        val MIGRATION_2_3 = object : Migration(2,3){
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE Game ADD COLUMN free INTEGER DEFAULT 0 NOT NULL")
+            }
+        }
+
         database = Room.databaseBuilder(this,
             GameDatabase::class.java,
             "GameDatabase")
             .addMigrations(MIGRATION_1_2)
+            .addMigrations(MIGRATION_2_3)
             .build()
     }
 }

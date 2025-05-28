@@ -58,6 +58,8 @@ class GameListAdapter : ListAdapter<GameCategorized, RecyclerView.ViewHolder>(Ga
                         }
                         if (gameDb?.deseado == true) {
                             cbDeseado.setImageResource(R.drawable.add_circle_24)
+                        } else {
+                            cbDeseado.setImageResource(R.drawable._add_circle_no_24)
                         }
                     }
                 }

@@ -21,7 +21,6 @@ import com.tfg.bargaingames.model.detail.GameData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -58,20 +57,16 @@ class GameDetailFragment : Fragment() {
     }
 
     private fun setupRetrofit() {
-
-        val client = OkHttpClient.Builder()
-            .build()
-
         val retrofit = Retrofit.Builder()
             .baseUrl(Constantes.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
-            .client(client)
             .build()
         service = retrofit.create(GamesService::class.java)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         seeDatabase()
         setupRetrofit()
         obtenerDetallesJuego()
@@ -93,7 +88,7 @@ class GameDetailFragment : Fragment() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val response = service.getAppDetails(appId.toString())
-                val appDetails = response[appId.toString()]
+                val appDetails = response[appId]
                 if (appDetails?.success == true && appDetails.data != null) {
                     game = appDetails.data
                     withContext(Dispatchers.Main) {
@@ -112,8 +107,10 @@ class GameDetailFragment : Fragment() {
                                 val precio = game.price!!.finalFormatted
                                 Log.i("game",precio)
                                 price.text = precio
-                            }else{
+                            }else if(game.free){
                                 price.text = "Gratis"
+                            }else{
+                                price.text = "No disponible"
                             }
 
                             if(gameDB!=null && gameDB!!.favorito){
@@ -125,9 +122,11 @@ class GameDetailFragment : Fragment() {
                             }
                         }
                     }
+                }else{
+                    Log.e("GameDetail", "Error al obtener detalles del juego")
                 }
             } catch (e: Exception) {
-                Log.e("GameDetail", "Error al obtener detalles", e)
+            Log.e("GameDetail", "Error al obtener datos de la llamada", e)
             }
         }
     }
@@ -142,8 +141,8 @@ class GameDetailFragment : Fragment() {
         lifecycleScope.launch(Dispatchers.IO) {
             if(gameDB != null) {
                 if (gameDB!!.favorito){
-                    GameApplication.database.gameDao().updateFavorito(game.id, false)
                     gameDB!!.favorito = false
+                    GameApplication.database.gameDao().update(gameDB!!)
                     withContext(Dispatchers.Main) {
                         Snackbar.make(view, "Juego quitado de favoritos", Snackbar.LENGTH_SHORT)
                             .show()
@@ -151,9 +150,12 @@ class GameDetailFragment : Fragment() {
                             cbFavorite.setImageResource(R.drawable.favorite_no_24)
                         }
                     }
+                    if(!gameDB!!.deseado){
+                        GameApplication.database.gameDao().deleteGame(game)
+                    }
                 }else {
-                    GameApplication.database.gameDao().updateFavorito(game.id, true)
                     gameDB!!.favorito = true
+                    GameApplication.database.gameDao().update(gameDB!!)
                     withContext(Dispatchers.Main) {
                         Snackbar.make(view, "Juego añadido a favoritos", Snackbar.LENGTH_SHORT)
                             .show()
@@ -183,8 +185,8 @@ class GameDetailFragment : Fragment() {
         lifecycleScope.launch(Dispatchers.IO) {
             if(gameDB != null) {
                 if (gameDB!!.deseado){
-                    GameApplication.database.gameDao().updateDeseado(game.id, false)
                     gameDB!!.deseado = false
+                    GameApplication.database.gameDao().update(gameDB!!)
                     withContext(Dispatchers.Main) {
                         Snackbar.make(view, "Juego quitado de deseados", Snackbar.LENGTH_SHORT)
                             .show()
@@ -192,9 +194,12 @@ class GameDetailFragment : Fragment() {
                             cbAdd.setImageResource(R.drawable._add_circle_no_24)
                         }
                     }
+                    if(!gameDB!!.favorito){
+                        GameApplication.database.gameDao().deleteGame(game)
+                    }
                 }else {
-                    GameApplication.database.gameDao().updateDeseado(game.id, true)
                     gameDB!!.deseado = true
+                    GameApplication.database.gameDao().update(gameDB!!)
                     withContext(Dispatchers.Main) {
                         Snackbar.make(view, "Juego añadido a deseados", Snackbar.LENGTH_SHORT)
                             .show()

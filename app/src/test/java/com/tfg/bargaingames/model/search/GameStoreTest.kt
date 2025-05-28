@@ -2,7 +2,8 @@ package com.tfg.bargaingames.model.search
 
 import com.tfg.bargaingames.model.game.GameCategorized
 import org.junit.Test
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 
 class GameStoreTest{
     @Test

@@ -21,35 +21,36 @@ class OfertasWorker(
 
     override suspend fun doWork(): Result {
         val context = applicationContext
+        var ids = ""
 
+        //Juegos deseados de la base de datos
         val juegosDeseados = GameApplication.database.gameDao().getWishGame()
+        for(juego in juegosDeseados){
+            if(juego.price != null){
+                ids += juego.id.toString()+","
+            }
+        }
+        ids = ids.removeSuffix(",")
 
+        //Respuesta de la api de Steam sobre nuestros juegos favoritos
         val retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         val service = retrofit.create(GamesService::class.java)
-
-        val ids = juegosDeseados.joinToString(",") { it.id.toString() }
-
         val response = service.getAppDetails(appId = ids, filters = "price_overview")
 
+        // Array donde se meten las altertas de rebajas
         val juegosEnOferta = mutableListOf<String>()
-
         for (juego in juegosDeseados) {
-            try {
-                val data = response[juego.id.toString()]?.data
+            val data = response[juego.id]?.data
 
-                if (data != null && data.price != null) {
-                    juego.price = data.price
-                    //GameApplication.database.gameDao().updateGame(juego)
-
-                    if (data.price!!.discountPercent > 0) {
-                        juegosEnOferta.add("${juego.name} - ${data.price!!.discountPercent}%")
-                    }
+            if (data?.price != null && data.price != juego.price) {
+                if (data.price!!.discountPercent > juego.price!!.discountPercent) {
+                    juegosEnOferta.add("${juego.name} - ${data.price!!.discountPercent}% - ${data.price!!.finalFormatted}")
                 }
-            } catch (e: Exception) {
-                Log.e("OfertasWorker", "Error con juego ${juego.id}: ${e.message}")
+                juego.price = data.price
+                GameApplication.database.gameDao().update(juego)
             }
         }
 
@@ -73,11 +74,11 @@ class OfertasWorker(
         )
 
         val notification = NotificationCompat.Builder(context, "bargainGames")
-            .setSmallIcon(R.drawable.favorite_24)
+            .setSmallIcon(R.drawable.icon_games)
             .setContentTitle("¡Juegos en oferta!")
+            .setContentText("Juegos de tu lista de deseados están en oferta")
             .setStyle(NotificationCompat.BigTextStyle().bigText(texto))
             .setContentIntent(pendingIntent)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .build()
 
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

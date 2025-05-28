@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.tfg.bargaingames.model.detail.GameData
 
-@Database(entities = [GameData::class], version = 2)
+@Database(entities = [GameData::class], version = 3)
 @TypeConverters(GameConverters::class)
 abstract class GameDatabase : RoomDatabase() {
     abstract fun gameDao(): GameDao

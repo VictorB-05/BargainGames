@@ -6,25 +6,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import com.tfg.bargaingames.api.Constantes
-import com.tfg.bargaingames.model.game.GameListAdapter
-import com.tfg.bargaingames.api.GamesService
 import com.tfg.bargaingames.databinding.FragmentHomeBinding
-import com.tfg.bargaingames.model.GameItem
+import com.tfg.bargaingames.model.game.GameCategorized
+import com.tfg.bargaingames.model.game.GameListAdapter
 import com.tfg.bargaingames.model.search.GameSearchAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 class HomeFragment : BaseFragment() {
     private var _binding: FragmentHomeBinding? = null
-    protected val binding get() = _binding!!
+    private val binding get() = _binding!!
 
     private lateinit var listAdapter: GameListAdapter
     private lateinit var searchAdapter: GameSearchAdapter
@@ -88,11 +83,21 @@ class HomeFragment : BaseFragment() {
     private fun getGames() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
+                val list = ArrayList<GameCategorized>()
                 val response = service.getFeaturedCategories()
                 val games = response.specials?.items ?: emptyList()
+                val topSellers = response.topSellers?.items ?: emptyList()
+                val newReleases = response.newReleases?.items ?: emptyList()
+                list.addAll(games)
+                list.addAll(topSellers)
+                list.addAll(newReleases)
                 withContext(Dispatchers.Main) {
-                    mostrarCategorias()
-                    listAdapter.submitList(games)
+                    if (games.isNotEmpty()) {
+                        mostrarCategorias()
+                        listAdapter.submitList(list)
+                    }else{
+                        mostrarNoResultados()
+                    }
                 }
             } catch (e: Exception) {
                 Log.e("MainActivity", "Error al obtener juegos", e)
